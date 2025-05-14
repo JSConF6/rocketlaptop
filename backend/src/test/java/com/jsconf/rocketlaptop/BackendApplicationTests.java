@@ -1,4 +1,4 @@
-package com.rocketlaptop.backend;
+package com.jsconf.rocketlaptop;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
