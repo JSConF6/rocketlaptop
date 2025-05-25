@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { signOut, useSession } from 'next-auth/react';
+import { logout } from '@/lib/api/auth';
 
 interface SellerSideBarProps {
   isOpen: boolean;
@@ -37,14 +38,9 @@ const SellerSideBar = ({
   ];
 
   const handleLogout = async (): Promise<void> => {
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${session?.accessToken}`,
-      },
-    });
+    if (!session?.accessToken) return;
 
+    await logout(session.accessToken);
     await signOut();
     if (pathname.startsWith('/seller')) {
       router.push('/');

@@ -1,5 +1,4 @@
 import NextAuth from 'next-auth';
-import Kakao from 'next-auth/providers/kakao';
 import Credentials from 'next-auth/providers/credentials';
 import { User } from 'next-auth';
 import { Session } from 'next-auth';
@@ -7,7 +6,6 @@ import { JWT } from 'next-auth/jwt';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
-    Kakao,
     Credentials({
       id: 'social-login',
       name: 'Social Login',
@@ -17,18 +15,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         accessTokenExpiresIn: {
           label: 'Access Token Expiration (sec)',
           type: 'text',
-        }, // 👈 추가
-        user: { label: 'User', type: 'text' }, // JSON 문자열로 전달됨
+        },
+        user: { label: 'User', type: 'text' },
       },
       async authorize(credentials) {
         if (!credentials) return null;
 
-        const user = JSON.parse(credentials.user as string); // 백에서 받은 사용자 정보
+        const user = JSON.parse(credentials.user as string);
         user.accessToken = credentials.accessToken;
         user.refreshToken = credentials.refreshToken;
         user.accessTokenExpiresIn = Number(credentials.accessTokenExpiresIn);
 
-        return user; // JWT에 저장됨
+        return user;
       },
     }),
   ],
@@ -47,7 +45,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           token.accessTokenExpires =
             Date.now() + user.accessTokenExpiresIn * 1000;
         } else {
-          token.accessTokenExpires = Date.now() + 1800 * 1000; // fallback
+          token.accessTokenExpires = Date.now() + 1800 * 1000;
         }
       }
 
@@ -78,7 +76,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           now + data.result.accessTokenExpiresIn * 1000;
         return token;
       } catch {
-        return {}; // refresh 실패 → 로그아웃 유도
+        return {};
       }
     },
     async session({ session, token }: { session: Session; token: JWT }) {

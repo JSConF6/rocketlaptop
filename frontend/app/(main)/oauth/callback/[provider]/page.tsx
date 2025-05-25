@@ -3,7 +3,8 @@
 import { signIn, useSession } from 'next-auth/react';
 import { Loader2 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { use, useEffect } from 'react';
+import { use, useEffect, useRef } from 'react';
+import { socialLogin } from '@/lib/api/auth';
 
 type Props = {
   params: Promise<{ provider: string }>;
@@ -14,28 +15,18 @@ const OAuthCallbackPage = ({ params }: Props): React.JSX.Element => {
   const router = useRouter();
   const { provider } = use(params);
   const code = useSearchParams().get('code');
+  const hasLoggedIn = useRef(false);
 
   useEffect(() => {
-    if (status === 'loading') return;
-
     if (status === 'authenticated') {
       router.replace('/');
       return;
     }
 
-    const kakaoLogin = async (): Promise<void> => {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/social/${provider}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            authorizeCode: code,
-          }),
-        },
-      );
+    if (hasLoggedIn.current || !code || !provider) return;
 
-      const data = await res.json();
+    const loginAndSignIn = async (): Promise<void> => {
+      const data = await socialLogin(code, provider);
 
       const {
         accessToken,
@@ -63,7 +54,9 @@ const OAuthCallbackPage = ({ params }: Props): React.JSX.Element => {
         callbackUrl: '/',
       });
     };
-    if (code && provider) kakaoLogin();
+
+    hasLoggedIn.current = true;
+    loginAndSignIn();
   }, [router, code, provider, status]);
 
   return (

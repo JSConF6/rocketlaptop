@@ -26,6 +26,7 @@ import {
   SheetClose,
 } from '@/components/ui/sheet';
 import { signOut, useSession } from 'next-auth/react';
+import { logout } from '@/lib/api/auth';
 
 const Header = (): React.JSX.Element => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -56,14 +57,9 @@ const Header = (): React.JSX.Element => {
   };
 
   const handleLogout = async (): Promise<void> => {
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${session?.accessToken}`,
-      },
-    });
+    if (!session?.accessToken) return;
 
+    await logout(session.accessToken);
     await signOut();
     const protectedRoutes = ['/my-page', '/cart', '/payment', '/seller'];
     const isProtected = protectedRoutes.some(path => pathname.startsWith(path));
