@@ -45,7 +45,7 @@ public class AuthService {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
         params.add("client_id", kakaoProperties.restApiKey());
-        params.add("redirect_uri", kakaoProperties.redirectUri()); // 인코딩 안 해도 됨
+        params.add("redirect_uri", kakaoProperties.redirectUri());
         params.add("code", authorizeCode);
         params.add("client_secret", kakaoProperties.clientSecret());
 
