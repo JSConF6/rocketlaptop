@@ -9,14 +9,39 @@
         SELECT *
         FROM member
         WHERE seq = #{seq}
-        AND status = 'ACTIVE'
+        AND status IN ('ACTIVE', 'PENDING_PHONE')
     </select>
 
     <select id="findByEmail" resultType="com.jsconf.rocketlaptop.domain.member.model.Member">
         SELECT *
         FROM member
         WHERE email = #{email}
-        AND status = 'ACTIVE'
+        AND status IN ('ACTIVE', 'PENDING_PHONE')
     </select>
+
+    <insert id="save" parameterType="com.jsconf.rocketlaptop.domain.member.model.Member" useGeneratedKeys="true" keyProperty="seq">
+        INSERT INTO member
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="email != null">email,</if>
+            <if test="password != null">password,</if>
+            <if test="name != null">name,</if>
+            <if test="phoneNumber != null">phone_number,</if>
+            <if test="provider != null">provider,</if>
+            <if test="providerId != null">provider_id,</if>
+            <if test="role != null">role,</if>
+            <if test="status != null">status,</if>
+        </trim>
+        VALUES
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="email != null">#{email},</if>
+            <if test="password != null">#{password},</if>
+            <if test="name != null">#{name},</if>
+            <if test="phoneNumber != null">#{phoneNumber},</if>
+            <if test="provider != null">#{provider},</if>
+            <if test="providerId != null">#{providerId},</if>
+            <if test="role != null">#{role},</if>
+            <if test="status != null">#{status}</if>
+        </trim>
+    </insert>
 
 </mapper>

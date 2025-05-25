@@ -27,7 +27,6 @@ public class LoginMemberArgumentResolver implements HandlerMethodArgumentResolve
         if (authentication != null && authentication.getPrincipal() instanceof MemberDetails) {
             return ((MemberDetails) authentication.getPrincipal()).getMember();
         }
-        System.out.println("asdasdaasd");
 
         throw new ApiException(ErrorCode.UNAUTHORIZED);
     }

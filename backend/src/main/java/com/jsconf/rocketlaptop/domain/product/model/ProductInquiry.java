@@ -15,7 +15,6 @@ public class ProductInquiry {
     private String question;
     private String answer;
     private ProductInquiryStatus status;
-    private Boolean isPrivate;
     private Boolean isDeleted;
     private LocalDateTime answerDate;
     private LocalDateTime createdAt;

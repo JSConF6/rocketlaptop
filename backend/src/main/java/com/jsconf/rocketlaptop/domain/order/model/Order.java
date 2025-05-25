@@ -11,6 +11,8 @@ public class Order {
     private Long seq;
     private Long memberSeq;
     private String orderNumber;
+    private String imp_uid;
+    private String pay_method;
     private Integer orderTotalPrice;
     private String recipientName;
     private String phoneNumber;

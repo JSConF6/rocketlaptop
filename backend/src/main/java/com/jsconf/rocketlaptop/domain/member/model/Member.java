@@ -15,9 +15,10 @@ public class Member {
     private String password;
     private String name;
     private String phoneNumber;
-    private Integer point;
     private UserStatus status;
     private UserProvider provider;
+    private String providerId;
+    private String role;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;

@@ -10,9 +10,7 @@ import java.time.LocalDateTime;
 public class Product {
     private Long seq;
     private Long categorySeq;
-    private Long memberSeq;
-    private String title;
-    private String description;
+    private String productName;
     private Integer price;
     private ProductStatus status;
     private Integer quantity;

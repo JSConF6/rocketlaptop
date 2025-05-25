@@ -7,19 +7,16 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -37,17 +34,14 @@ public class JwtTokenProvider {
         secretKey = Keys.hmacShaKeyFor(jwtProperties.secret().getBytes(StandardCharsets.UTF_8));
     }
 
-    private String generateToken(MemberDetails memberDetails, Date expiration, Boolean isRefresh) {
-        Long seq = memberDetails.getMember().getSeq();
-        String email = memberDetails.getMember().getEmail();
+    private String generateToken(Member member, Date expiration, Boolean isRefresh) {
+        Long seq = member.getSeq();
+        String email = member.getEmail();
 
         ClaimsBuilder claimsBuilder = Jwts.claims().issuer(projectName).subject(seq.toString());
         if (!isRefresh) {
             claimsBuilder.add("email", email);
-            claimsBuilder.add("roles", memberDetails.getAuthorities()
-                    .stream().map(GrantedAuthority::getAuthority)
-                    .collect(Collectors.joining(","))
-            );
+            claimsBuilder.add("roles", member.getRole());
         }
         claimsBuilder.issuedAt(new Date()).expiration(expiration);
 
@@ -61,12 +55,12 @@ public class JwtTokenProvider {
         return new Date(System.currentTimeMillis() + expiration.toMillis());
     }
 
-    public String generateAccessToken(MemberDetails memberDetails) {
-        return generateToken(memberDetails, generateExpirationDate(jwtProperties.expiration().accessToken()), false);
+    public String generateAccessToken(Member member) {
+        return generateToken(member, generateExpirationDate(jwtProperties.expiration().accessToken()), false);
     }
 
-    public String generateRefreshToken(MemberDetails memberDetails) {
-        return generateToken(memberDetails, generateExpirationDate(jwtProperties.expiration().refreshToken()), true);
+    public String generateRefreshToken(Member member) {
+        return generateToken(member, generateExpirationDate(jwtProperties.expiration().refreshToken()), true);
     }
 
     public Boolean validateToken(String token) {
@@ -75,10 +69,10 @@ public class JwtTokenProvider {
             return true;
         } catch (ExpiredJwtException e) {
             log.error("Expired JWT Token : {}", e.getMessage(), e);
-            throw new JwtException(ErrorCode.ACCESS_TOKEN_EXPIRED);
+            throw new JwtException(ErrorCode.TOKEN_EXPIRED);
         } catch (MalformedJwtException e) {
             log.error("Malformed JWT Token : {}", e.getMessage(), e);
-            throw new JwtException(ErrorCode.MALFORMED_TOKEN);
+            throw new JwtException(ErrorCode.INVALID_TOKEN);
         } catch (SignatureException e) {
             log.error("Invalid JWT signature: {}", e.getMessage(), e);
             throw new JwtException(ErrorCode.INVALID_SIGNATURE);
@@ -104,10 +98,35 @@ public class JwtTokenProvider {
         Member member = Member.builder()
                 .seq(memberSeq)
                 .email(email)
+                .role(claims.get("roles", String.class).replace("ROLE_", ""))
                 .build();
-        List<String> memberRoles = Arrays.stream(
-                claims.get("roles", String.class).split(",")
-        ).toList();
-        return new MemberDetails(member, memberRoles);
+        return new MemberDetails(member);
+    }
+
+    public Duration getAccessTokenExpiration() {
+        return jwtProperties.expiration().accessToken();
+    }
+
+    public Duration getRefreshTokenExpiration() {
+        return jwtProperties.expiration().refreshToken();
+    }
+
+    public String getSubject(String token) {
+        return extractAllClaims(token).getSubject();
+    }
+
+    private Claims extractAllClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build().parseSignedClaims(token)
+                .getPayload();
+    }
+
+    public String getAuthorizationHeader(HttpServletRequest request) {
+        return request.getHeader(JwtConstants.JWT_HEADER);
+    }
+
+    public String getAccessToken(String authorization) {
+        return authorization.replace(JwtConstants.TOKEN_PREFIEX, "");
     }
 }
