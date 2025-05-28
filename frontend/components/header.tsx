@@ -78,6 +78,12 @@ const Header = (): React.JSX.Element => {
             {!session ? (
               <>
                 <Link
+                  href="/signup"
+                  className="text-muted-foreground hover:text-foreground font-medium"
+                >
+                  회원가입
+                </Link>
+                <Link
                   href="/login"
                   className="text-muted-foreground hover:text-foreground font-medium"
                 >

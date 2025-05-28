@@ -1,4 +1,4 @@
-export interface SocialLoginResult {
+export interface LoginResponse {
   seq: number;
   email: string;
   name: string;

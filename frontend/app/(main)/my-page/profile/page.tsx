@@ -35,7 +35,6 @@ const ProfilePage = (): React.JSX.Element => {
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('555-123-4567');
   const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
@@ -113,15 +112,6 @@ const ProfilePage = (): React.JSX.Element => {
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="phone">전화번호</Label>
-                <Input
-                  id="phone"
-                  value={phone}
-                  onChange={e => setPhone(e.target.value)}
                 />
               </div>
 

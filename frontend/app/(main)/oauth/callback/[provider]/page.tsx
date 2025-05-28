@@ -45,7 +45,7 @@ const OAuthCallbackPage = ({ params }: Props): React.JSX.Element => {
         role,
       });
 
-      await signIn('social-login', {
+      await signIn('login', {
         accessToken,
         refreshToken,
         accessTokenExpiresIn,

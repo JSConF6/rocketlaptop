@@ -7,8 +7,8 @@ import { JWT } from 'next-auth/jwt';
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Credentials({
-      id: 'social-login',
-      name: 'Social Login',
+      id: 'login',
+      name: 'Login',
       credentials: {
         accessToken: { label: 'Access Token', type: 'text' },
         refreshToken: { label: 'Refresh Token', type: 'text' },

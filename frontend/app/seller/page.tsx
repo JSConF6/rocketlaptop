@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { auth } from '@/lib/auth';
-import { ShoppingCart, Package, MessageSquare, Star, Plus } from 'lucide-react';
+import { ShoppingCart, Package, MessageSquare, Star } from 'lucide-react';
 import Link from 'next/link';
 
 const SellerDashboard = async (): Promise<React.JSX.Element> => {
@@ -23,12 +23,6 @@ const SellerDashboard = async (): Promise<React.JSX.Element> => {
             판매자 대시보드에 오신 것을 환영합니다
           </p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700" asChild>
-          <Link href="/seller/products/new">
-            <Plus className="mr-2 h-4 w-4" />
-            상품 등록
-          </Link>
-        </Button>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">

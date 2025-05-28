@@ -127,8 +127,18 @@ const ProductsPage = (): React.JSX.Element => {
 
       try {
         await deleteSellerProduct(session.accessToken, productSeq);
+        const expectedTotal = totalCount - 1;
+        const lastPage = Math.ceil(expectedTotal / pageSize);
+        if (currentPage > lastPage) {
+          setCurrentPage(lastPage || 1);
+        } else {
+          getSellerProducts();
+        }
         setIsDeleting(false);
-        getSellerProducts();
+        toast({
+          title: '상품 삭제 완료',
+          description: '상품이 정상적으로 삭제되었습니다.',
+        });
       } catch (err) {
         toast({
           title: '상품 삭제 실패',
