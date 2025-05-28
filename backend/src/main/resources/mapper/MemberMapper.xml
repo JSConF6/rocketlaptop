@@ -5,27 +5,33 @@
 
 <mapper namespace="com.jsconf.rocketlaptop.domain.member.mapper.MemberMapper">
 
-    <select id="findBySeq" resultType="com.jsconf.rocketlaptop.domain.member.model.Member">
+    <select id="findBySeq" resultType="Member">
         SELECT *
         FROM member
         WHERE seq = #{seq}
-        AND status IN ('ACTIVE', 'PENDING_PHONE')
+        AND status = 'ACTIVE'
     </select>
 
-    <select id="findByEmail" resultType="com.jsconf.rocketlaptop.domain.member.model.Member">
+    <select id="findByEmail" resultType="Member">
         SELECT *
         FROM member
         WHERE email = #{email}
-        AND status IN ('ACTIVE', 'PENDING_PHONE')
+        AND status = 'ACTIVE'
     </select>
 
-    <insert id="save" parameterType="com.jsconf.rocketlaptop.domain.member.model.Member" useGeneratedKeys="true" keyProperty="seq">
+    <select id="existsByEmail">
+        SELECT COUNT(*)
+        FROM member
+        WHERE email = #{email}
+        AND status = 'ACTIVE'
+    </select>
+
+    <insert id="save" parameterType="Member" useGeneratedKeys="true" keyProperty="seq">
         INSERT INTO member
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="email != null">email,</if>
             <if test="password != null">password,</if>
             <if test="name != null">name,</if>
-            <if test="phoneNumber != null">phone_number,</if>
             <if test="provider != null">provider,</if>
             <if test="providerId != null">provider_id,</if>
             <if test="role != null">role,</if>
@@ -36,7 +42,6 @@
             <if test="email != null">#{email},</if>
             <if test="password != null">#{password},</if>
             <if test="name != null">#{name},</if>
-            <if test="phoneNumber != null">#{phoneNumber},</if>
             <if test="provider != null">#{provider},</if>
             <if test="providerId != null">#{providerId},</if>
             <if test="role != null">#{role},</if>

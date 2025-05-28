@@ -1,6 +1,7 @@
 package com.jsconf.rocketlaptop.security.jwt;
 
 import com.jsconf.rocketlaptop.domain.member.model.Member;
+import com.jsconf.rocketlaptop.domain.member.model.UserRole;
 import com.jsconf.rocketlaptop.exception.ErrorCode;
 import com.jsconf.rocketlaptop.security.exception.JwtException;
 import io.jsonwebtoken.*;
@@ -98,7 +99,7 @@ public class JwtTokenProvider {
         Member member = Member.builder()
                 .seq(memberSeq)
                 .email(email)
-                .role(claims.get("roles", String.class).replace("ROLE_", ""))
+                .role(UserRole.valueOf(claims.get("roles", String.class).replace("ROLE_", "")))
                 .build();
         return new MemberDetails(member);
     }

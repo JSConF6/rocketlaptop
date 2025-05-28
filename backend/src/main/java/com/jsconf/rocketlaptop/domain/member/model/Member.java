@@ -14,11 +14,10 @@ public class Member {
     private String email;
     private String password;
     private String name;
-    private String phoneNumber;
     private UserStatus status;
     private UserProvider provider;
     private String providerId;
-    private String role;
+    private UserRole role;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;

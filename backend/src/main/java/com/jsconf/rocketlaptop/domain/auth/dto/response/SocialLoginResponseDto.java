@@ -1,6 +1,7 @@
 package com.jsconf.rocketlaptop.domain.auth.dto.response;
 
 import com.jsconf.rocketlaptop.domain.member.model.Member;
+import com.jsconf.rocketlaptop.domain.member.model.UserRole;
 import lombok.Builder;
 
 @Builder
@@ -8,7 +9,7 @@ public record SocialLoginResponseDto(
         Long seq,
         String email,
         String name,
-        String role,
+        UserRole role,
         String accessToken,
         String refreshToken,
         Long accessTokenExpiresIn

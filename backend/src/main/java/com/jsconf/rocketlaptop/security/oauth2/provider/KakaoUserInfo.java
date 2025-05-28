@@ -41,8 +41,8 @@ public class KakaoUserInfo implements OAuth2UserInfo {
                 .name(getName())
                 .provider(UserProvider.valueOf(getProvider()))
                 .providerId(getProviderId())
-                .role(UserRole.USER.toString())
-                .status(UserStatus.PENDING_PHONE)
+                .role(UserRole.USER)
+                .status(UserStatus.ACTIVE)
                 .build();
     }
 

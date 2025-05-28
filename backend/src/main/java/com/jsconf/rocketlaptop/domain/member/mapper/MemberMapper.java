@@ -9,5 +9,6 @@ import java.util.Optional;
 public interface MemberMapper {
     Optional<Member> findBySeq(Long seq);
     Optional<Member> findByEmail(String email);
+    boolean existsByEmail(String email);
     void save(Member member);
 }

@@ -1,7 +1,9 @@
 package com.jsconf.rocketlaptop.domain.auth.controller;
 
 import com.jsconf.rocketlaptop.common.SuccessCode;
+import com.jsconf.rocketlaptop.domain.auth.dto.request.LoginRequestDto;
 import com.jsconf.rocketlaptop.domain.auth.dto.request.ReissueTokenRequestDto;
+import com.jsconf.rocketlaptop.domain.auth.dto.request.SignUpRequestDto;
 import com.jsconf.rocketlaptop.domain.auth.dto.request.SocialLoginRequestDto;
 import com.jsconf.rocketlaptop.domain.auth.service.AuthService;
 import com.jsconf.rocketlaptop.util.ResponseUtil;
@@ -16,6 +18,17 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 public class AuthController {
     private final AuthService authService;
+
+    @PostMapping("/sign-up")
+    public ResponseEntity<?> signUp(@RequestBody SignUpRequestDto signUpRequestDtos) {
+        authService.signUp(signUpRequestDtos);
+        return ResponseUtil.success(SuccessCode.USER_CREATED);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequestDto) {
+        return ResponseUtil.success(SuccessCode.SUCCESS, authService.login(loginRequestDto));
+    }
 
     @PostMapping("/social/{provider}")
     public ResponseEntity<?> socialLogin(
