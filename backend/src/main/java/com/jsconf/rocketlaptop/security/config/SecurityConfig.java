@@ -44,10 +44,8 @@ public class SecurityConfig {
                 .headers(header -> header.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/oauth2/**").permitAll()
-                        .requestMatchers("/admin/auth/login", "/admin/auth/logout").permitAll()
-                        .requestMatchers("/admin/**").hasRole(UserRole.ADMIN.name())
-                        .requestMatchers("/api/member/**").hasRole(UserRole.USER.name())
+                        .requestMatchers("/uploads/**", "/auth/**", "/oauth2/**", "/api/categories/**").permitAll()
+                        .requestMatchers("/api/member/**", "/api/seller/**").hasRole(UserRole.USER.name())
                 )
 
                 .addFilterBefore(new JwtAuthorizationFilter(jwtTokenProvider, redisService), BasicAuthenticationFilter.class)

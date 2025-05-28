@@ -5,6 +5,34 @@
 
 <mapper namespace="com.jsconf.rocketlaptop.domain.product.mapper.ProductImageMapper">
 
+    <select id="findAllByProductSeq" resultType="ProductImage">
+        SELECT *
+        FROM product_image
+        WHERE product_seq = #{productSeq}
+        ORDER BY product_image_order ASC
+    </select>
 
+    <insert id="saveProductImages" parameterType="list">
+        INSERT INTO product_image (product_seq, product_image_path, product_image_order)
+        VALUES
+        <foreach collection="list" item="image" separator=",">
+            (#{image.productSeq}, #{image.productImagePath}, #{image.productImageOrder})
+        </foreach>
+    </insert>
+
+    <update id="updateProductImage" parameterType="ProductImage">
+        UPDATE product_image
+        SET product_image_order = #{productImageOrder}
+        WHERE seq = #{seq}
+    </update>
+
+
+    <delete id="deleteProductImages" parameterType="list">
+        DELETE FROM product_image
+        WHERE seq IN
+        <foreach collection="list" item="productImageSeq" open="(" separator="," close=")">
+            #{productImageSeq}
+        </foreach>
+    </delete>
 
 </mapper>

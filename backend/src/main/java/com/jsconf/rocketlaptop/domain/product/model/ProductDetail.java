@@ -1,8 +1,12 @@
 package com.jsconf.rocketlaptop.domain.product.model;
 
+import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@Builder
+@ToString
 public class ProductDetail {
     private Long seq;
     private Long productSeq;
@@ -12,7 +16,6 @@ public class ProductDetail {
     private String graphics;
     private String display;
     private String battery;
-    private String ports;
     private String weight;
     private String os;
 }

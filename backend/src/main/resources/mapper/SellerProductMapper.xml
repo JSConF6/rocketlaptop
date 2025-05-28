@@ -3,8 +3,154 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.jsconf.rocketlaptop.domain.product.mapper.ProductMapper">
+<mapper namespace="com.jsconf.rocketlaptop.domain.product.mapper.SellerProductMapper">
 
+    <select id="findBySellerSeq" parameterType="ProductSearchCondition" resultType="ProductSummaryDto">
+        SELECT p.seq, p.product_name, c.category_name, p.price, p.quantity, p.status, pi.product_image_path
+        FROM product p
+        INNER JOIN category c ON c.seq = p.category_seq
+        INNER JOIN product_image pi
+            ON pi.product_seq = p.seq
+            AND pi.product_image_order = 1
+        WHERE seller_seq = #{sellerSeq}
+        AND is_deleted = 0
+        <if test="search != null and search != ''">
+            AND (
+                p.seq LIKE CONCAT('%', #{search}, '%')
+                OR p.product_name LIKE CONCAT('%', #{search}, '%')
+            )
+        </if>
+        <if test="status != null and status != ''">
+            AND p.status = #{status}
+        </if>
+        <if test="categorySeq != null">
+            AND c.seq = #{categorySeq}
+        </if>
+        ORDER BY p.seq DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
 
+    <select id="findBySellerSeqAndProductSeq" parameterType="Product" resultType="ProductDetailDto">
+        SELECT p.seq, p.category_seq, p.product_name, p.price, p.status, p.quantity,
+               pd.processor, pd.memory, pd.storage, pd.graphics, pd.display, pd.battery,
+               pd.weight, pd.os
+        FROM product p
+        INNER JOIN product_detail pd ON p.seq = pd.product_seq
+        WHERE seller_seq = #{sellerSeq}
+        AND p.seq = #{seq}
+        AND is_deleted = 0
+    </select>
+
+    <select id="existsBySellerSeqAndProductSeq" parameterType="Product" resultType="boolean">
+        SELECT COUNT(*)
+        FROM product
+        WHERE seller_seq = #{sellerSeq}
+        AND seq = #{seq}
+        AND is_deleted = 0
+    </select>
+
+    <select id="countBySellerSeq" parameterType="com.jsconf.rocketlaptop.domain.product.dto.ProductSearchCondition" resultType="int">
+        SELECT COUNT(*)
+        FROM product p
+        INNER JOIN category c ON c.seq = p.category_seq
+        WHERE seller_seq = #{sellerSeq}
+        AND is_deleted = 0
+        <if test="search != null and search != ''">
+            AND (
+            p.seq LIKE CONCAT('%', #{search}, '%')
+            OR p.product_name LIKE CONCAT('%', #{search}, '%')
+            )
+        </if>
+        <if test="status != null and status != ''">
+            AND p.status = #{status}
+        </if>
+        <if test="categorySeq != null">
+            AND c.seq = #{categorySeq}
+        </if>
+    </select>
+
+    <insert id="saveSellerProduct" parameterType="Product" useGeneratedKeys="true" keyProperty="seq">
+        INSERT INTO product
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="categorySeq != null">category_seq,</if>
+            <if test="sellerSeq != null">seller_seq,</if>
+            <if test="productName != null">product_name,</if>
+            <if test="price != null">price,</if>
+            <if test="status != null">status,</if>
+            <if test="quantity != null">quantity,</if>
+        </trim>
+        VALUES
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="categorySeq != null">#{categorySeq},</if>
+            <if test="sellerSeq != null">#{sellerSeq},</if>
+            <if test="productName != null">#{productName},</if>
+            <if test="price != null">#{price},</if>
+            <if test="status != null">#{status},</if>
+            <if test="quantity != null">#{quantity},</if>
+        </trim>
+    </insert>
+
+    <insert id="saveSellerProductDetail" parameterType="ProductDetail" useGeneratedKeys="true" keyProperty="seq">
+        INSERT INTO product_detail
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="productSeq != null">product_seq,</if>
+            <if test="processor != null">processor,</if>
+            <if test="memory != null">memory,</if>
+            <if test="storage != null">storage,</if>
+            <if test="graphics != null">graphics,</if>
+            <if test="display != null">display,</if>
+            <if test="battery != null">battery,</if>
+            <if test="weight != null">weight,</if>
+            <if test="os != null">os,</if>
+        </trim>
+        VALUES
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="productSeq != null">#{productSeq},</if>
+            <if test="processor != null">#{processor},</if>
+            <if test="memory != null">#{memory},</if>
+            <if test="storage != null">#{storage},</if>
+            <if test="graphics != null">#{graphics},</if>
+            <if test="display != null">#{display},</if>
+            <if test="battery != null">#{battery},</if>
+            <if test="weight != null">#{weight},</if>
+            <if test="os != null">#{os},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSellerProduct" parameterType="Product">
+        UPDATE product
+        SET
+        <if test="categorySeq != null">category_seq = #{categorySeq},</if>
+        <if test="productName != null">product_name = #{productName},</if>
+        <if test="price != null">price = #{price},</if>
+        <if test="status != null">status = #{status},</if>
+        <if test="quantity != null">quantity = #{quantity},</if>
+        updated_at = now()
+        WHERE seller_seq = #{sellerSeq}
+        AND seq = #{seq}
+        AND is_deleted = 0
+    </update>
+
+    <update id="updateSellerProductDetail" parameterType="ProductDetail">
+        UPDATE product_detail
+        SET
+        <if test="processor != null">processor = #{processor},</if>
+        <if test="memory != null">memory = #{memory},</if>
+        <if test="storage != null">storage = #{storage},</if>
+        <if test="graphics != null">graphics = #{graphics},</if>
+        <if test="display != null">display = #{display},</if>
+        <if test="battery != null">battery = #{battery},</if>
+        <if test="weight != null">weight = #{weight},</if>
+        <if test="os != null">os = #{os}</if>
+        WHERE product_seq = #{productSeq}
+    </update>
+
+    <update id="deleteBySellerSeqAndProductSeq" parameterType="Product">
+        UPDATE product
+        SET is_deleted = 1, deleted_at = now()
+        WHERE seller_seq = #{sellerSeq}
+        AND seq = #{seq}
+        AND is_deleted = 0
+    </update>
 
 </mapper>

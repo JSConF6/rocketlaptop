@@ -5,6 +5,10 @@
 
 <mapper namespace="com.jsconf.rocketlaptop.domain.product.mapper.CategoryMapper">
 
-
+    <select id="findAllCategories" resultType="Category">
+        SELECT *
+        FROM category
+        ORDER BY seq ASC
+    </select>
 
 </mapper>

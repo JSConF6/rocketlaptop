@@ -31,7 +31,12 @@ public enum ErrorCode {
     ADMIN_ACCESS_DENIED("401202", "어드민 권한을 가진 계정만 로그인이 가능합니다.", HttpStatus.UNAUTHORIZED),
     DUPLICATED_EMAIL_ADDRESS("409203", "이메일이 존재합니다.", HttpStatus.CONFLICT),
     DUPLICATED_MOBILE_NUMBER("409204", "휴대폰 번호가 존재합니다.", HttpStatus.CONFLICT),
-    VALIDATION_FAIL("400205", "유효성 검사 실패 하였습니다.", HttpStatus.BAD_REQUEST);
+    VALIDATION_FAIL("400205", "유효성 검사 실패 하였습니다.", HttpStatus.BAD_REQUEST),
+
+    IMAGE_SAVE_FAIL("400300", "이미지 저장 실패 했습니다.", HttpStatus.BAD_REQUEST),
+    PRODUCT_SAVE_FAIL("400301", "상품 등록 실패 했습니다.", HttpStatus.BAD_REQUEST),
+    PRODUCT_NOT_FOUND("404302", "상품이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
+    PRODUCT_UPDATE_FAIL("400303", "상품 수정 실패 했습니다.", HttpStatus.BAD_REQUEST);
 
     private final String code;
     private final String message;

@@ -8,7 +8,6 @@ import lombok.Getter;
 public class ProductImage {
     private Long seq;
     private Long productSeq;
-    private String path;
-    private ProductImageType type;
-    private Integer order;
+    private String productImagePath;
+    private Integer productImageOrder;
 }

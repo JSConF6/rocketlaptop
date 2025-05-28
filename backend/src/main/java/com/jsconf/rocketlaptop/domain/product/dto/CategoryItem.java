@@ -1,4 +1,4 @@
-package com.jsconf.rocketlaptop.domain.product.dto.response;
+package com.jsconf.rocketlaptop.domain.product.dto;
 
 import com.jsconf.rocketlaptop.domain.product.model.Category;
 import lombok.Builder;
