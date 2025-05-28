@@ -8,6 +8,16 @@ const nextConfig: NextConfig = {
     },
     optimizePackageImports: ['lucide-react', '@/components/ui'],
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '8080',
+        pathname: '/uploads/**',
+      },
+    ],
+  },
 };
 
 export default nextConfig;

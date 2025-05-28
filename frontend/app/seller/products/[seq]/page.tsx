@@ -2,7 +2,7 @@
 
 import type React from 'react';
 
-import { useEffect, useRef, useState } from 'react';
+import { useState, useEffect, useRef, use, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Card,
@@ -23,25 +23,69 @@ import {
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, Upload, X } from 'lucide-react';
-import LabeledInput from '@/components/LabelInput';
-import { ProductFormData } from '@/types/product';
 import { useToast } from '@/hooks/use-toast';
-import { CategoryItem } from '@/types/category';
-import { fetchCategories } from '@/lib/api/category';
 import { useSession } from 'next-auth/react';
+import { CategoryItem } from '@/types/category';
+import { ProductFormData, ProductImage } from '@/types/product';
+import { fetchCategories } from '@/lib/api/category';
+import {
+  fetchSellerProduct,
+  updateSellerProduct,
+} from '@/lib/api/sellerProduct';
+import LabeledInput from '@/components/LabelInput';
 import Image from 'next/image';
-import { createSellerProduct } from '@/lib/api/sellerProduct';
 
-const NewProductPage = (): React.JSX.Element => {
+// 샘플 상품 데이터 (실제로는 API에서 가져올 것)
+const getProductData = (id: string) => {
+  const productId = Number.parseInt(id);
+  return {
+    id: productId,
+    name: `노트북 모델 ${String.fromCharCode(65 + (productId % 26))}${productId}`,
+    category: ['게이밍', '사무용', '그래픽작업용', '학생용', '2-in-1'][
+      productId % 5
+    ],
+    price: Math.floor(800000 + Math.random() * 2000000),
+    salePrice:
+      productId % 3 === 0 ? Math.floor(700000 + Math.random() * 1800000) : '',
+    stock: Math.floor(Math.random() * 50),
+    description: `이 노트북은 최신 프로세서와 그래픽 카드를 탑재하여 뛰어난 성능을 제공합니다. 
+    슬림한 디자인과 긴 배터리 수명으로 언제 어디서나 사용할 수 있습니다.
+    고해상도 디스플레이와 프리미엄 스피커로 몰입감 있는 멀티미디어 경험을 제공합니다.`,
+    specifications: `CPU: Intel Core i7-12700H
+RAM: 16GB DDR4
+SSD: 512GB NVMe
+Display: 15.6인치 FHD (1920x1080) IPS
+Graphics: NVIDIA GeForce RTX 3060 6GB
+OS: Windows 11 Home
+Weight: 2.3kg
+Battery: 80Wh`,
+    status: ['판매중', '품절', '판매중지', '입고예정'][productId % 4],
+    featured: productId % 5 === 0,
+    images: Array.from(
+      { length: (productId % 4) + 1 },
+      (_, i) => `/placeholder.svg?height=200&width=200&text=Image${i + 1}`,
+    ),
+  };
+};
+
+type Props = {
+  params: Promise<{ seq: string }>;
+};
+
+const EditProductPage = ({ params }: Props): React.JSX.Element => {
   const router = useRouter();
   const { toast } = useToast();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  const { seq } = use(params);
   const [currentTab, setCurrentTab] = useState('basic');
+  const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [categories, setCategories] = useState<CategoryItem[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [categories, setCategories] = useState<CategoryItem[]>([]);
+  const [productImages, setProductImages] = useState<ProductImage[]>([]);
+  const [deletedImageSeqs, setDeletedImageSeqs] = useState<number[]>([]);
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
     categorySeq: '',
@@ -95,10 +139,50 @@ const NewProductPage = (): React.JSX.Element => {
   };
 
   const isImagesComplete = () => {
-    return imageFiles.length >= 2;
+    return productImages.length + imageFiles.length >= 2;
   };
 
-  // 폼 입력 처리
+  const getProductDetail = useCallback(async () => {
+    if (status !== 'authenticated' || !session?.accessToken) return;
+    try {
+      if (!session?.accessToken) return;
+      const data = await fetchSellerProduct(session.accessToken, Number(seq));
+      const productData = data.result;
+      setFormData({
+        name: productData.productName,
+        categorySeq: productData.categorySeq.toString(),
+        price: productData.price.toString(),
+        quantity: productData.quantity.toString(),
+        processor: productData.processor,
+        memory: productData.memory,
+        storage: productData.storage,
+        graphics: productData.graphics,
+        display: productData.display,
+        battery: productData.battery,
+        weight: productData.weight,
+        os: productData.os,
+        status: productData.status,
+      });
+      setProductImages(productData.productImages);
+      setPreviewUrls(
+        productData.productImages.map(
+          img => `${process.env.NEXT_PUBLIC_API_URL}${img.productImagePath}`,
+        ),
+      );
+      setIsLoading(false);
+    } catch (e) {
+      toast({
+        title: '상품 상세보기 조회 실패',
+        description: '상품 상세보기 조회 실패 했습니다.',
+        variant: 'destructive',
+      });
+    }
+  }, [session, seq]);
+
+  useEffect(() => {
+    getProductDetail();
+  }, [getProductDetail]);
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ): void => {
@@ -106,7 +190,6 @@ const NewProductPage = (): React.JSX.Element => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // 셀렉트 입력 처리
   const handleSelectChange = (name: string, value: string): void => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -121,7 +204,9 @@ const NewProductPage = (): React.JSX.Element => {
     const files = e.target.files;
     if (!files) return;
 
-    if (files.length + imageFiles.length > maxFileLength) {
+    const imageFileLen =
+      productImages.length + files.length + imageFiles.length;
+    if (imageFileLen > maxFileLength) {
       toast({
         title: '이미지 업로드 제한',
         description: `최대 ${maxFileLength}개까지 업로드할 수 있습니다.`,
@@ -153,7 +238,17 @@ const NewProductPage = (): React.JSX.Element => {
 
   // 이미지 제거 처리
   const handleRemoveImage = (index: number): void => {
-    setImageFiles(prev => prev.filter((_, i) => i !== index));
+    const isExisting = index < productImages.length;
+    if (isExisting) {
+      const seq = productImages[index]?.seq;
+      if (seq) {
+        setDeletedImageSeqs(prev => [...prev, seq]);
+      }
+      setProductImages(prev => prev.filter((_, i) => i !== index));
+    } else {
+      const fileIndex = index - productImages.length;
+      setImageFiles(prev => prev.filter((_, i) => i !== fileIndex));
+    }
     setPreviewUrls(prev => prev.filter((_, i) => i !== index));
   };
 
@@ -196,43 +291,67 @@ const NewProductPage = (): React.JSX.Element => {
         return;
       }
 
-      const productFormData = new FormData();
-      productFormData.append(
-        'product',
-        new Blob([JSON.stringify(formData)], { type: 'application/json' }),
+      const updateProductFormData = new FormData();
+      const updateProductImages = productImages.map((productImage, index) => ({
+        seq: productImage.seq,
+        productImageOrder: index + 1,
+      }));
+      updateProductFormData.append(
+        'updateProduct',
+        new Blob(
+          [
+            JSON.stringify({
+              product: formData,
+              updateProductImages,
+              deletedImageSeqs,
+            }),
+          ],
+          { type: 'application/json' },
+        ),
       );
       imageFiles.forEach(imageFile =>
-        productFormData.append('images', imageFile),
+        updateProductFormData.append('newImages', imageFile),
       );
 
       try {
-        const data = await createSellerProduct(
+        const data = await updateSellerProduct(
           session?.accessToken,
-          productFormData,
+          seq,
+          updateProductFormData,
         );
         toast({
-          title: '상품 등록 성공',
-          description: `${formData.name} 상품이 성공적으로 등록되었습니다.`,
+          title: '상품 수정 성공',
+          description: `상품이 성공적으로 수정되었습니다.`,
         });
         setIsSubmitting(false);
-        router.push('/seller/products');
+        setCurrentTab('basic');
+        setImageFiles([]);
+        setDeletedImageSeqs([]);
+        getProductDetail();
       } catch (err) {
         toast({
-          title: '상품 등록 실패',
-          description: `${formData.name} 상품 등록 실패했습니다.`,
+          title: '상품 수정 실패',
+          description: `상품 수정 실패했습니다.`,
+          variant: 'destructive',
         });
         setIsSubmitting(false);
       }
     }
   };
 
+  if (isLoading) {
+    return <div className="p-8 text-center">로딩 중...</div>;
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <Button variant="outline" size="icon" onClick={() => router.back()}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <h1 className="text-2xl font-bold">새 상품 등록</h1>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="icon" onClick={() => router.back()}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <h1 className="text-2xl font-bold">상품 수정</h1>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit}>
@@ -422,7 +541,7 @@ const NewProductPage = (): React.JSX.Element => {
                       </button>
                     </div>
                   ))}
-                  {imageFiles.length < 5 && (
+                  {productImages.length + imageFiles.length < 5 && (
                     <button
                       type="button"
                       onClick={handleAddImage}
@@ -498,7 +617,7 @@ const NewProductPage = (): React.JSX.Element => {
               className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
               disabled={isSubmitting}
             >
-              {isSubmitting ? '등록 중...' : '상품 등록'}
+              {isSubmitting ? '저장 중...' : '변경사항 저장'}
             </Button>
           )}
         </div>
@@ -507,4 +626,4 @@ const NewProductPage = (): React.JSX.Element => {
   );
 };
 
-export default NewProductPage;
+export default EditProductPage;

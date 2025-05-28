@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
 import 'styles/globals.css';
 import { SessionProvider } from 'next-auth/react';
+import { Toaster } from '@/components/ui/toaster';
 
 const pretendard = localFont({
   src: '../fonts/pretendard/PretendardVariable.woff2',
@@ -38,6 +39,7 @@ const RootLayout = ({
     >
       <body className={pretendard.className}>
         <SessionProvider>{children}</SessionProvider>
+        <Toaster />
       </body>
     </html>
   );

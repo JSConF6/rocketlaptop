@@ -2,7 +2,6 @@ import type React from 'react';
 import 'styles/globals.css';
 import Header from '@/components/header';
 import { CartProvider } from '@/components/cart-provider';
-import { Toaster } from '@/components/ui/toaster';
 import ThemeProvider from '@/components/theme-provider';
 
 const MainLayout = ({
@@ -24,7 +23,6 @@ const MainLayout = ({
             </div>
           </footer>
         </div>
-        <Toaster />
       </CartProvider>
     </ThemeProvider>
   );
