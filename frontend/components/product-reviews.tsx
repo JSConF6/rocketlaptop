@@ -96,7 +96,7 @@ export const ProductReviews = ({
     );
   }
 
-  if (reviews.length === 0) {
+  if (totalCount === 0) {
     return (
       <div className="text-center py-8">
         <p className="text-lg font-medium">작성된 리뷰가 없습니다.</p>
@@ -106,6 +106,7 @@ export const ProductReviews = ({
 
   return (
     <div className="space-y-6">
+      <h2 className="text-2xl font-bold mb-6">상품 리뷰 ({totalCount})</h2>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-2">
           <Select value={sortBy} onValueChange={setSortBy}>

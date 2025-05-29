@@ -277,12 +277,10 @@ const ProductPage = ({ params }: Props): React.JSX.Element | null => {
           </TabsContent>
 
           <TabsContent value="reviews">
-            <h2 className="text-2xl font-bold mb-6">상품 리뷰</h2>
             <ProductReviews productSeq={productDetail.seq} />
           </TabsContent>
 
           <TabsContent value="inquiries">
-            <h2 className="text-2xl font-bold mb-6">상품 문의</h2>
             <ProductInquiries productSeq={productDetail.seq} />
           </TabsContent>
         </Tabs>

@@ -15,6 +15,9 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { useSession } from 'next-auth/react';
+import { fetchProductInquiries } from '@/lib/api/inquiries';
+import { ProductInquiry } from '@/types/inquiries';
+import PaginationControl from './pagination-control';
 
 type Inquiry = {
   seq: number;
@@ -104,66 +107,80 @@ const mockInquiries: Record<string, Inquiry[]> = {
 export const ProductInquiries = ({
   productSeq,
 }: ProductInquiriesProps): React.JSX.Element => {
-  const [inquiries, setInquiries] = useState<Inquiry[]>([]);
+  const [inquiries, setInquiries] = useState<ProductInquiry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [newQuestion, setNewQuestion] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 5;
   const { toast } = useToast();
   const { data: session } = useSession();
 
   useEffect(() => {
-    const fetchInquiries = async (): Promise<void> => {
+    const getProductInquiries = async () => {
       setIsLoading(true);
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      const productInquiries = mockInquiries[productSeq] || [];
-      setInquiries(productInquiries);
-      setIsLoading(false);
+      try {
+        const data = await fetchProductInquiries(
+          productSeq,
+          currentPage,
+          pageSize,
+        );
+        setTotalCount(data.result.totalProductInquiryCount);
+        setInquiries(data.result.productInquiries);
+      } catch (err) {
+        toast({
+          title: '상품 문의 조회 실패',
+          description: '상품 문의 조회 실패',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoading(false);
+      }
     };
-
-    fetchInquiries();
-  }, [productSeq]);
+    getProductInquiries();
+  }, [productSeq, currentPage]);
 
   const handleSubmitQuestion = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
+    console.log('handleSubmitQuestion');
 
-    if (!newQuestion.trim()) {
-      toast({
-        title: 'Empty question',
-        description: 'Please enter your question',
-        variant: 'destructive',
-      });
-      return;
-    }
+    // if (!newQuestion.trim()) {
+    //   toast({
+    //     title: 'Empty question',
+    //     description: 'Please enter your question',
+    //     variant: 'destructive',
+    //   });
+    //   return;
+    // }
 
-    setIsSubmitting(true);
+    // setIsSubmitting(true);
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    // // Simulate API call
+    // await new Promise(resolve => setTimeout(resolve, 1500));
 
-    toast({
-      title: 'Question submitted',
-      description: 'Your question has been submitted and will be answered soon',
-    });
+    // toast({
+    //   title: 'Question submitted',
+    //   description: 'Your question has been submitted and will be answered soon',
+    // });
 
-    // Add new question to the list (in a real app, this would come from the server)
-    const newInquiry: Inquiry = {
-      seq: 4,
-      productSeq: 4,
-      productName: 'ProBook X5',
-      productImage: '/placeholder.svg?height=80&width=80',
-      name: '존안가',
-      title: '배송문의',
-      question: '상품 언제 배송 되나요??',
-      createdAt: '2023-05-18',
-      answer: '',
-      answerDate: '',
-    };
+    // // Add new question to the list (in a real app, this would come from the server)
+    // const newInquiry: Inquiry = {
+    //   seq: 4,
+    //   productSeq: 4,
+    //   productName: 'ProBook X5',
+    //   productImage: '/placeholder.svg?height=80&width=80',
+    //   name: '존안가',
+    //   title: '배송문의',
+    //   question: '상품 언제 배송 되나요??',
+    //   createdAt: '2023-05-18',
+    //   answer: '',
+    //   answerDate: '',
+    // };
 
-    setInquiries([newInquiry, ...inquiries]);
-    setNewQuestion('');
-    setIsSubmitting(false);
+    // setInquiries([newInquiry, ...inquiries]);
+    // setNewQuestion('');
+    // setIsSubmitting(false);
   };
 
   if (isLoading) {
@@ -214,12 +231,10 @@ export const ProductInquiries = ({
         </div>
       )}
 
-      <div>
-        <h3 className="text-lg font-medium mb-4">
-          상품 문의 ({inquiries.length})
-        </h3>
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold mb-6">상품 문의 ({totalCount})</h2>
 
-        {inquiries.length === 0 ? (
+        {totalCount === 0 ? (
           <div className="text-center py-8">
             <MessageCircle className="h-12 w-12 mx-auto text-muted-foreground opacity-50" />
             <p className="text-lg font-medium mt-2">
@@ -273,6 +288,12 @@ export const ProductInquiries = ({
             ))}
           </Accordion>
         )}
+        <PaginationControl
+          currentPage={currentPage}
+          totalCount={totalCount}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+        />
       </div>
     </div>
   );
