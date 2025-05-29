@@ -1,4 +1,4 @@
-package com.jsconf.rocketlaptop.domain.product.model;
+package com.jsconf.rocketlaptop.domain.inquiry.model;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -7,14 +7,14 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class ProductInquiry {
+public class Inquiry {
     private Long seq;
     private Long memberSeq;
     private Long productSeq;
     private String title;
     private String question;
     private String answer;
-    private ProductInquiryStatus status;
+    private InquiryStatus status;
     private Boolean isDeleted;
     private LocalDateTime answerDate;
     private LocalDateTime createdAt;

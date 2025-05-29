@@ -1,24 +1,22 @@
-package com.jsconf.rocketlaptop.domain.review.dto;
+package com.jsconf.rocketlaptop.domain.inquiry.dto;
 
 import lombok.Builder;
 
 @Builder
-public record ProductReviewSearchCondition(
+public record ProductInquirySearchCondition(
         Integer page,
         Integer pageSize,
         Integer offset,
-        Long productSeq,
-        String sortBy
+        Long productSeq
 ) {
-    public static ProductReviewSearchCondition of(Integer page, Integer pageSize, Long productSeq, String sortBy) {
+    public static ProductInquirySearchCondition of(Integer page, Integer pageSize, Long productSeq) {
         int safePage = Math.max(page, 1);
         int safePageSize = Math.max(pageSize, 1);
-        return ProductReviewSearchCondition.builder()
+        return ProductInquirySearchCondition.builder()
                 .page(safePage)
                 .pageSize(safePageSize)
                 .offset((safePage - 1) * safePageSize)
                 .productSeq(productSeq)
-                .sortBy(sortBy)
                 .build();
     }
 }

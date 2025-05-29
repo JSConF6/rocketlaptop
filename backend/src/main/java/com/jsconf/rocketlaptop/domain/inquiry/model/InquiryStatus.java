@@ -1,5 +1,5 @@
-package com.jsconf.rocketlaptop.domain.product.model;
+package com.jsconf.rocketlaptop.domain.inquiry.model;
 
-public enum ProductInquiryStatus {
+public enum InquiryStatus {
     WAITING, ANSWERED
 }

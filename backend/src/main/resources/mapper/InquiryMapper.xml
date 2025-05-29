@@ -5,6 +5,25 @@
 
 <mapper namespace="com.jsconf.rocketlaptop.domain.inquiry.mapper.InquiryMapper">
 
+    <select id="selectProductInquiries" parameterType="ProductInquirySearchCondition" resultType="ProductInquiryDetailDto">
+        SELECT pin.seq, m.name, pin.question, pin.answer, pin.status, pin.answer_date, pin.created_at
+        FROM product_inquiry pin
+        INNER JOIN member m
+            ON pin.member_seq = m.seq
+        WHERE pin.product_seq = #{productSeq}
+        AND pin.is_deleted = 0
+        ORDER BY pin.created_at DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
 
+    <select id="countProductInquiries" parameterType="ProductInquirySearchCondition">
+        SELECT COUNT(*)
+        FROM product_inquiry pin
+        INNER JOIN member m
+            ON pin.member_seq = m.seq
+        WHERE pin.product_seq = #{productSeq}
+        AND pin.is_deleted = 0
+        ORDER BY pin.created_at DESC
+    </select>
 
 </mapper>
