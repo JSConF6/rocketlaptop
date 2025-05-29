@@ -242,7 +242,7 @@ const EditProductPage = ({ params }: Props): React.JSX.Element => {
     if (isExisting) {
       const seq = productImages[index]?.seq;
       if (seq) {
-        setDeletedImageSeqs(prev => [...prev, seq]);
+        setDeletedImageSeqs(prev => [...prev, Number(seq)]);
       }
       setProductImages(prev => prev.filter((_, i) => i !== index));
     } else {

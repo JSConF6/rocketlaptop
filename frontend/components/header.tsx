@@ -132,7 +132,7 @@ const Header = (): React.JSX.Element => {
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="카테고리, 상품 이름"
+                placeholder="상품 이름"
                 className="w-full pl-8 border-gray-300 focus-visible:ring-primary"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}

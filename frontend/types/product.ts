@@ -9,20 +9,20 @@ export interface ProductSummary {
 }
 
 export interface FetchSellerProductsResponse {
-  lastSeq: number | null;
   totalCount: number;
   sellerProducts: ProductSummary[];
 }
 
 export interface ProductImage {
-  seq: number;
+  seq: string;
   productImagePath: string;
   productImageOrder: number;
 }
 
-export interface FetchSellerProductResponse {
+export interface FetchProductResponse {
   seq: number;
   categorySeq: number;
+  categoryName: string;
   productName: string;
   price: number;
   status: string;
@@ -36,6 +36,26 @@ export interface FetchSellerProductResponse {
   weight: string;
   os: string;
   productImages: ProductImage[];
+}
+
+export interface MainPageProduct {
+  seq: number;
+  productName: string;
+  categoryName: string;
+  processor: string;
+  memory: string;
+  graphics: string;
+  price: number;
+  productImagePath: string;
+}
+
+export interface FetchMainPageProductsResponse {
+  mainPageProducts: MainPageProduct[];
+}
+
+export interface FetchProductsResponse {
+  totalCount: number;
+  products: MainPageProduct[];
 }
 
 export interface CreateSellerProductResponse {

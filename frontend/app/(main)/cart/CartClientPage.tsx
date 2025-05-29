@@ -62,7 +62,10 @@ const CartClientPage = (): React.JSX.Element => {
                 >
                   <div className="flex-shrink-0">
                     <Image
-                      src={item.image || '/placeholder.svg'}
+                      src={
+                        `${process.env.NEXT_PUBLIC_API_URL}${item.image}` ||
+                        '/placeholder.svg'
+                      }
                       alt={item.name}
                       width={100}
                       height={100}

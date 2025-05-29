@@ -62,6 +62,7 @@ const ProductsPage = (): React.JSX.Element => {
     if (status !== 'authenticated' || !session?.accessToken) return;
 
     try {
+      setIsLoading(true);
       const data = await fetchSellerProductsByCondition(session.accessToken, {
         search: debouncedSearch,
         status: statusFilter !== 'ALL' ? statusFilter : null,

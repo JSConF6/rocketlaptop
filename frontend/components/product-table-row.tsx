@@ -48,7 +48,7 @@ const ProductTableRow = ({
         <div className="h-10 w-10 rounded-md bg-gray-100 relative overflow-hidden">
           <Image
             src={
-              product.productImagePath.startsWith('/uploads')
+              product.productImagePath
                 ? `${process.env.NEXT_PUBLIC_API_URL}${product.productImagePath}`
                 : `/placeholder.svg?height=40&width=40&text=${product.seq}`
             }

@@ -3,9 +3,10 @@ import ProductList from '@/components/product-list';
 import ProductFilters from '@/components/product-filters';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Metadata } from 'next';
+import { fetchCategories } from '@/lib/api/category';
 
 type Props = {
-  searchParams: { q?: string };
+  searchParams: Promise<{ q?: string; category?: string }>;
 };
 
 export const metadata: Metadata = {
@@ -13,24 +14,34 @@ export const metadata: Metadata = {
   description: 'Find the perfect laptop for your needs',
 };
 
-const SearchPage = ({ searchParams }: Props): React.JSX.Element => {
-  const query = searchParams.q || '';
+const SearchPage = async ({
+  searchParams,
+}: Props): Promise<React.JSX.Element> => {
+  const { q, category } = await searchParams;
+
+  const [categoriesResponse] = await Promise.all([fetchCategories()]);
+  const categories = categoriesResponse.result.categories;
+  const categoryName = category
+    ? categories.find(c => c.seq.toString() === category)?.categoryName
+    : '';
 
   return (
     <div className="container py-8">
       <h1 className="text-3xl font-bold mb-2">검색 결과</h1>
-      <p className="text-muted-foreground mb-6">
-        {query ? `검색 결과 "${query}"` : '전체 상품'}
-      </p>
+      <div className="flex flex-col text-muted-foreground mb-6 space-y-2">
+        {q && <span>검색결과 : {q}</span>}
+        {categoryName && <span>카테고리 : {categoryName}</span>}
+        {!q && !category && <span>전체 상품을 확인해보세요</span>}
+      </div>
 
       <div className="grid md:grid-cols-[240px_1fr] gap-8">
         <aside>
-          <ProductFilters />
+          <ProductFilters categories={categories} />
         </aside>
 
         <div>
           <Suspense fallback={<ProductListSkeleton />}>
-            <ProductList query={query} />
+            <ProductList query={q} />
           </Suspense>
         </div>
       </div>

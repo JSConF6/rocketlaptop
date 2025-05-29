@@ -10,26 +10,13 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import { CategoryItem } from '@/types/category';
 
-// Mock data for filters
-const categories = [
-  { id: 'gaming', name: 'Gaming Laptops' },
-  { id: 'ultrabook', name: 'Ultrabooks' },
-  { id: 'business', name: 'Business Laptops' },
-  { id: 'workstation', name: 'Workstations' },
-  { id: 'budget', name: 'Budget Laptops' },
-  { id: '2-in-1', name: '2-in-1 Convertibles' },
-];
+type CategoryProps = {
+  categories: CategoryItem[];
+};
 
-const brands = [
-  { id: 'ProTech', name: 'ProTech' },
-  { id: 'GameForce', name: 'GameForce' },
-  { id: 'UltraTech', name: 'UltraTech' },
-  { id: 'ValueTech', name: 'ValueTech' },
-  { id: 'FlexTech', name: 'FlexTech' },
-];
-
-const ProductFilters = (): React.JSX.Element => {
+const ProductFilters = ({ categories }: CategoryProps): React.JSX.Element => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -51,8 +38,11 @@ const ProductFilters = (): React.JSX.Element => {
   };
 
   // Handle category filter change
-  const handleCategoryChange = (categoryId: string, checked: boolean): void => {
-    updateFilters('category', checked ? categoryId : '');
+  const handleCategoryChange = (
+    categorySeq: number,
+    checked: boolean,
+  ): void => {
+    updateFilters('category', checked ? categorySeq.toString() : '');
   };
 
   // Update URL when price range changes (debounced)
@@ -74,16 +64,16 @@ const ProductFilters = (): React.JSX.Element => {
           <AccordionContent>
             <div className="space-y-2">
               {categories.map(category => (
-                <div key={category.id} className="flex items-center space-x-2">
+                <div key={category.seq} className="flex items-center space-x-2">
                   <Checkbox
-                    id={`category-${category.id}`}
-                    checked={currentCategory === category.id}
+                    id={`category-${category.seq}`}
+                    checked={Number(currentCategory) === category.seq}
                     onCheckedChange={checked =>
-                      handleCategoryChange(category.id, checked as boolean)
+                      handleCategoryChange(category.seq, checked as boolean)
                     }
                   />
-                  <Label htmlFor={`category-${category.id}`}>
-                    {category.name}
+                  <Label htmlFor={`category-${category.seq}`}>
+                    {category.categoryName}
                   </Label>
                 </div>
               ))}

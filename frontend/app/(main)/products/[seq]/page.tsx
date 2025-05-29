@@ -13,7 +13,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ProductReviews } from '@/components/product-reviews';
 import { ProductInquiries } from '@/components/product-inquiries';
 import { useRouter } from 'next/navigation';
-import { use } from 'react';
+import { use, useEffect, useState } from 'react';
+import { fetchProductDetail } from '@/lib/api/product';
+import { FetchProductResponse } from '@/types/product';
+import { useToast } from '@/hooks/use-toast';
 
 // Mock products data
 const products = [
@@ -78,29 +81,78 @@ type Props = {
 
 const ProductPage = ({ params }: Props): React.JSX.Element | null => {
   const router = useRouter();
+  const { toast } = useToast();
   const { seq } = use(params);
-  const product = products.find(p => p.seq === Number(seq));
+  const product = products.find(p => p.seq === 1);
+  const [isLoading, setIsLoading] = useState(true);
+  const [productDetail, setProductDetail] = useState<FetchProductResponse>({
+    seq: 0,
+    categorySeq: 0,
+    categoryName: '',
+    productName: '',
+    price: 0,
+    status: '',
+    quantity: 0,
+    processor: '',
+    memory: '',
+    storage: '',
+    graphics: '',
+    display: '',
+    battery: '',
+    weight: '',
+    os: '',
+    productImages: [],
+  });
+
+  useEffect(() => {
+    const getProductDetail = async (): Promise<void> => {
+      try {
+        setIsLoading(true);
+        const data = await fetchProductDetail(Number(seq));
+        setProductDetail(data.result);
+      } catch (e) {
+        toast({
+          title: '상품 상세보기 조회 실패',
+          description: '상품 상세보기 조회 실패 했습니다.',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    getProductDetail();
+  }, [seq]);
 
   if (!product) {
     router.push('/products');
     return null;
   }
 
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <span className="text-gray-500 text-lg font-medium">
+          상품 정보 불러오는 중...
+        </span>
+      </div>
+    );
+  }
+
   return (
     <div className="container py-8">
       <div className="grid md:grid-cols-2 gap-8 lg:gap-16">
-        <ProductGallery images={product.images} />
+        <ProductGallery images={productDetail.productImages} />
 
         <div className="space-y-6">
           <div>
             <h1 className="text-3xl font-bold">{product.name}</h1>
             <p className="text-2xl font-bold mt-2">
-              {product.price.toLocaleString()}원
+              {productDetail.price.toLocaleString()}원
             </p>
           </div>
 
           <div className="prose max-w-none">
-            <p>{product.description}</p>
+            <p>{productDetail.categoryName}</p>
           </div>
 
           <div className="space-y-4">
@@ -111,7 +163,7 @@ const ProductPage = ({ params }: Props): React.JSX.Element | null => {
                 <div>
                   <p className="font-medium">CPU</p>
                   <p className="text-sm text-muted-foreground">
-                    {product.specs.processor}
+                    {productDetail.processor}
                   </p>
                 </div>
               </div>
@@ -120,7 +172,7 @@ const ProductPage = ({ params }: Props): React.JSX.Element | null => {
                 <div>
                   <p className="font-medium">메모리</p>
                   <p className="text-sm text-muted-foreground">
-                    {product.specs.memory}
+                    {productDetail.memory}
                   </p>
                 </div>
               </div>
@@ -129,7 +181,7 @@ const ProductPage = ({ params }: Props): React.JSX.Element | null => {
                 <div>
                   <p className="font-medium">저장장치</p>
                   <p className="text-sm text-muted-foreground">
-                    {product.specs.storage}
+                    {productDetail.storage}
                   </p>
                 </div>
               </div>
@@ -138,7 +190,7 @@ const ProductPage = ({ params }: Props): React.JSX.Element | null => {
                 <div>
                   <p className="font-medium">화면</p>
                   <p className="text-sm text-muted-foreground">
-                    {product.specs.display}
+                    {productDetail.display}
                   </p>
                 </div>
               </div>
@@ -147,14 +199,14 @@ const ProductPage = ({ params }: Props): React.JSX.Element | null => {
                 <div>
                   <p className="font-medium">그래픽</p>
                   <p className="text-sm text-muted-foreground">
-                    {product.specs.graphics}
+                    {productDetail.graphics}
                   </p>
                 </div>
               </div>
             </div>
           </div>
 
-          <AddToCartButton product={product} />
+          <AddToCartButton productDetail={productDetail} />
         </div>
       </div>
 
@@ -173,31 +225,31 @@ const ProductPage = ({ params }: Props): React.JSX.Element | null => {
                 <div>
                   <h3 className="font-medium">OS</h3>
                   <p className="text-sm text-muted-foreground">
-                    {product.specs.os}
+                    {productDetail.os}
                   </p>
                 </div>
                 <div>
                   <h3 className="font-medium">CPU</h3>
                   <p className="text-sm text-muted-foreground">
-                    {product.specs.processor}
+                    {productDetail.processor}
                   </p>
                 </div>
                 <div>
                   <h3 className="font-medium">메모리</h3>
                   <p className="text-sm text-muted-foreground">
-                    {product.specs.memory}
+                    {productDetail.memory}
                   </p>
                 </div>
                 <div>
                   <h3 className="font-medium">저장장치</h3>
                   <p className="text-sm text-muted-foreground">
-                    {product.specs.storage}
+                    {productDetail.storage}
                   </p>
                 </div>
                 <div>
                   <h3 className="font-medium">그래픽</h3>
                   <p className="text-sm text-muted-foreground">
-                    {product.specs.graphics}
+                    {productDetail.graphics}
                   </p>
                 </div>
               </div>
@@ -205,25 +257,19 @@ const ProductPage = ({ params }: Props): React.JSX.Element | null => {
                 <div>
                   <h3 className="font-medium">화면</h3>
                   <p className="text-sm text-muted-foreground">
-                    {product.specs.display}
+                    {productDetail.display}
                   </p>
                 </div>
                 <div>
                   <h3 className="font-medium">배터리</h3>
                   <p className="text-sm text-muted-foreground">
-                    {product.specs.battery}
+                    {productDetail.battery}
                   </p>
                 </div>
                 <div>
                   <h3 className="font-medium">무게</h3>
                   <p className="text-sm text-muted-foreground">
-                    {product.specs.weight}
-                  </p>
-                </div>
-                <div>
-                  <h3 className="font-medium">포트</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {product.specs.ports}
+                    {productDetail.weight}
                   </p>
                 </div>
               </div>

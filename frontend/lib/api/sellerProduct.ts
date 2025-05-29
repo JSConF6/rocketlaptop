@@ -2,7 +2,7 @@ import { ApiResponse } from '@/types/api';
 import { API_URL } from '../config';
 import {
   CreateSellerProductResponse,
-  FetchSellerProductResponse,
+  FetchProductResponse,
   FetchSellerProductsResponse,
   UpdateSellerProductResponse,
 } from '@/types/product';
@@ -42,7 +42,7 @@ export const fetchSellerProductsByCondition = async (
 export const fetchSellerProduct = async (
   accessToken: string,
   productSeq: number,
-): Promise<ApiResponse<FetchSellerProductResponse>> => {
+): Promise<ApiResponse<FetchProductResponse>> => {
   const res = await fetch(`${API_URL}/api/seller/products/${productSeq}`, {
     method: 'GET',
     headers: {
