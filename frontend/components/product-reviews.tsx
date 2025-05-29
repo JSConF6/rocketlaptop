@@ -10,112 +10,50 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-
-type Review = {
-  seq: number;
-  email: string;
-  name: string;
-  starRating: number;
-  content: string;
-  createdAt: string;
-};
+import { fetchProductReviews } from '@/lib/api/reviews';
+import { useToast } from '@/hooks/use-toast';
+import { ProductReview } from '@/types/reviews';
+import PaginationControl from './pagination-control';
 
 type ProductReviewsProps = {
   productSeq: number;
 };
 
-// Mock reviews data
-const mockReviews: Record<number, Review[]> = {
-  1: [
-    {
-      seq: 1,
-      email: 'asd@asd.com',
-      name: '존안',
-      starRating: 5,
-      content: '상품 너무 좋습니다.',
-      createdAt: '2023-05-20',
-    },
-    {
-      seq: 2,
-      email: 'dsa@dsa.com',
-      name: '존안하',
-      starRating: 5,
-      content: '상품 너무 좋습니다.',
-      createdAt: '2023-05-20',
-    },
-    {
-      seq: 3,
-      email: 'qwe@qwe.com',
-      name: '존안마',
-      starRating: 4,
-      content: '상품 너무 좋습니다.',
-      createdAt: '2023-05-20',
-    },
-  ],
-  2: [
-    {
-      seq: 1,
-      email: 'ewq@ewq.com',
-      name: '존안바',
-      starRating: 4,
-      content: '상품 너무 좋습니다.',
-      createdAt: '2023-05-20',
-    },
-    {
-      seq: 2,
-      email: 'cxz@cxz.com',
-      name: '존안',
-      starRating: 3,
-      content: '상품 너무 좋습니다.',
-      createdAt: '2023-05-20',
-    },
-  ],
-  3: [
-    {
-      seq: 1,
-      email: 'vcx@vcx.com',
-      name: '존안카',
-      starRating: 5,
-      content: '상품 너무 좋습니다.',
-      createdAt: '2023-05-20',
-    },
-  ],
-};
-
 export const ProductReviews = ({
   productSeq,
 }: ProductReviewsProps): React.JSX.Element => {
-  const [reviews, setReviews] = useState<Review[]>([]);
+  const { toast } = useToast();
+  const [reviews, setReviews] = useState<ProductReview[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState('newest');
+  const pageSize = 5;
 
   useEffect(() => {
-    const fetchReviews = async (): Promise<void> => {
+    const getProductReviews = async () => {
       setIsLoading(true);
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      const productReviews = mockReviews[productSeq] || [];
-
-      // Sort reviews based on selected option
-      const sortedReviews = [...productReviews];
-      if (sortBy === 'newest') {
-        sortedReviews.sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      try {
+        const data = await fetchProductReviews(
+          productSeq,
+          sortBy,
+          currentPage,
+          pageSize,
         );
-      } else if (sortBy === 'highest') {
-        sortedReviews.sort((a, b) => b.starRating - a.starRating);
-      } else if (sortBy === 'lowest') {
-        sortedReviews.sort((a, b) => a.starRating - b.starRating);
+        setTotalCount(data.result.totalProductReviewCount);
+        setReviews(data.result.productReviews);
+      } catch (err) {
+        toast({
+          title: '상품 리뷰 조회 실패',
+          description: '상품 리뷰 조회 실패',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoading(false);
       }
-
-      setReviews(sortedReviews);
-      setIsLoading(false);
     };
-
-    fetchReviews();
-  }, [productSeq, sortBy]);
+    getProductReviews();
+  }, [productSeq, sortBy, currentPage]);
 
   const renderStars = (rating: number): React.JSX.Element[] => {
     return Array(5)
@@ -203,6 +141,12 @@ export const ProductReviews = ({
           </div>
         ))}
       </div>
+      <PaginationControl
+        currentPage={currentPage}
+        totalCount={totalCount}
+        pageSize={pageSize}
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 };

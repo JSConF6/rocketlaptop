@@ -14,6 +14,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import { useSession } from 'next-auth/react';
 
 type Inquiry = {
   seq: number;
@@ -108,6 +109,7 @@ export const ProductInquiries = ({
   const [newQuestion, setNewQuestion] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { data: session } = useSession();
 
   useEffect(() => {
     const fetchInquiries = async (): Promise<void> => {
@@ -186,29 +188,31 @@ export const ProductInquiries = ({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-medium mb-4">문의하기</h3>
-        <form onSubmit={handleSubmitQuestion} className="space-y-4">
-          <Textarea
-            placeholder="문의할 내용을 입력해주세요."
-            value={newQuestion}
-            onChange={e => setNewQuestion(e.target.value)}
-            className="min-h-[100px]"
-          />
-          <div className="flex justify-end">
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? (
-                'Submitting...'
-              ) : (
-                <>
-                  <Send className="h-4 w-4 mr-2" />
-                  문의
-                </>
-              )}
-            </Button>
-          </div>
-        </form>
-      </div>
+      {session && (
+        <div>
+          <h3 className="text-lg font-medium mb-4">문의하기</h3>
+          <form onSubmit={handleSubmitQuestion} className="space-y-4">
+            <Textarea
+              placeholder="문의할 내용을 입력해주세요."
+              value={newQuestion}
+              onChange={e => setNewQuestion(e.target.value)}
+              className="min-h-[100px]"
+            />
+            <div className="flex justify-end">
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  'Submitting...'
+                ) : (
+                  <>
+                    <Send className="h-4 w-4 mr-2" />
+                    문의
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
+        </div>
+      )}
 
       <div>
         <h3 className="text-lg font-medium mb-4">
@@ -218,9 +222,8 @@ export const ProductInquiries = ({
         {inquiries.length === 0 ? (
           <div className="text-center py-8">
             <MessageCircle className="h-12 w-12 mx-auto text-muted-foreground opacity-50" />
-            <p className="text-lg font-medium mt-2">No questions yet</p>
-            <p className="text-muted-foreground mt-1">
-              Be the first to ask a question about this product
+            <p className="text-lg font-medium mt-2">
+              상품 문의 내역이 없습니다.
             </p>
           </div>
         ) : (

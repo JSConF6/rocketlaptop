@@ -1,4 +1,4 @@
-package com.jsconf.rocketlaptop.domain.product.model;
+package com.jsconf.rocketlaptop.domain.review.model;
 
 import lombok.Builder;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package com.jsconf.rocketlaptop.domain.product.mapper;
+package com.jsconf.rocketlaptop.domain.review.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 
