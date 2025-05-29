@@ -25,4 +25,16 @@ public record ProductSearchCondition (
                 .categorySeq(categorySeq)
                 .build();
     }
+
+    public static ProductSearchCondition of(String search, Integer page, Integer pageSize, Integer categorySeq) {
+        int safePage = Math.max(page, 1);
+        int safePageSize = Math.max(pageSize, 1);
+        return ProductSearchCondition.builder()
+                .search(search)
+                .page(safePage)
+                .pageSize(safePageSize)
+                .offset((safePage - 1) * safePageSize)
+                .categorySeq(categorySeq)
+                .build();
+    }
 }

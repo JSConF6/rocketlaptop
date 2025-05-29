@@ -7,9 +7,10 @@ import lombok.Builder;
 import java.util.List;
 
 @Builder
-public record GetSellerProductResponseDto(
+public record GetProductResponseDto(
         Long seq,
         Long categorySeq,
+        String categoryName,
         String productName,
         Integer price,
         ProductStatus status,
@@ -24,10 +25,11 @@ public record GetSellerProductResponseDto(
         String os,
         List<ProductImageResponseDto> productImages
 ) {
-    public static GetSellerProductResponseDto from(ProductDetailDto productDetail, List<ProductImageResponseDto> productImages) {
-        return GetSellerProductResponseDto.builder()
+    public static GetProductResponseDto from(ProductDetailDto productDetail, List<ProductImageResponseDto> productImages) {
+        return GetProductResponseDto.builder()
                 .seq(productDetail.seq())
                 .categorySeq(productDetail.categorySeq())
+                .categoryName(productDetail.categoryName())
                 .productName(productDetail.productName())
                 .price(productDetail.price())
                 .status(productDetail.status())

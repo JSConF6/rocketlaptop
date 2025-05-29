@@ -5,6 +5,73 @@
 
 <mapper namespace="com.jsconf.rocketlaptop.domain.product.mapper.ProductMapper">
 
+    <select id="selectMainPageProducts" resultType="MainPageProductDto">
+        SELECT p.seq, p.product_name, c.category_name, pd.processor, pd.memory, pd.graphics, p.price, pi.product_image_path
+        FROM product p
+        INNER JOIN category c
+            ON p.category_seq = c.seq
+        INNER JOIN product_detail pd
+            ON p.seq = pd.product_seq
+        INNER JOIN product_image pi
+            ON p.seq = pi.product_seq
+            AND pi.product_image_order = 1
+        WHERE p.status = 'ON_SALE'
+        AND is_deleted = 0
+        ORDER BY p.created_at DESC
+        LIMIT 4
+    </select>
 
+    <select id="selectProducts" parameterType="ProductSearchCondition" resultType="MainPageProductDto">
+        SELECT p.seq, p.product_name, c.category_name, pd.processor, pd.memory, pd.graphics, p.price, pi.product_image_path
+        FROM product p
+        INNER JOIN category c
+            ON p.category_seq = c.seq
+        INNER JOIN product_detail pd
+            ON p.seq = pd.product_seq
+        INNER JOIN product_image pi
+            ON p.seq = pi.product_seq
+            AND pi.product_image_order = 1
+        WHERE is_deleted = 0
+        <if test="search != null and search != ''">
+            AND p.product_name LIKE CONCAT('%', #{search}, '%')
+        </if>
+        <if test="categorySeq != null">
+            AND c.seq = #{categorySeq}
+        </if>
+        ORDER BY p.seq DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <select id="countProducts" parameterType="ProductSearchCondition" resultType="int">
+        SELECT COUNT(*)
+        FROM product p
+        INNER JOIN category c
+            ON p.category_seq = c.seq
+        INNER JOIN product_detail pd
+            ON p.seq = pd.product_seq
+        INNER JOIN product_image pi
+            ON p.seq = pi.product_seq
+            AND pi.product_image_order = 1
+        WHERE is_deleted = 0
+        <if test="search != null and search != ''">
+            AND p.product_name LIKE CONCAT('%', #{search}, '%')
+        </if>
+        <if test="categorySeq != null">
+            AND c.seq = #{categorySeq}
+        </if>
+    </select>
+
+    <select id="selectProductDetail" resultType="ProductDetailDto">
+        SELECT p.seq, p.category_seq, c.category_name, p.product_name, p.price, p.status, p.quantity,
+               pd.processor, pd.memory, pd.storage, pd.graphics, pd.display, pd.battery,
+               pd.weight, pd.os
+        FROM product p
+        INNER JOIN category c
+            ON p.category_seq = c.seq
+        INNER JOIN product_detail pd
+            ON p.seq = pd.product_seq
+        WHERE p.seq = #{seq}
+        AND is_deleted = 0
+    </select>
 
 </mapper>

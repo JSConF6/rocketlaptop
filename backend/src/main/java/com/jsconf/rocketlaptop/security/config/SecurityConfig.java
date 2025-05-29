@@ -44,7 +44,8 @@ public class SecurityConfig {
                 .headers(header -> header.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/uploads/**", "/auth/**", "/oauth2/**", "/api/categories/**").permitAll()
+                        .requestMatchers("/uploads/**", "/auth/**", "/oauth2/**").permitAll()
+                        .requestMatchers("/api/categories/**", "/api/main/products/**", "/api/products/**").permitAll()
                         .requestMatchers("/api/member/**", "/api/seller/**").hasRole(UserRole.USER.name())
                 )
 

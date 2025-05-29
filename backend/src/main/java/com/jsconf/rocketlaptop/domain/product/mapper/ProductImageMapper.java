@@ -8,6 +8,7 @@ import java.util.List;
 @Mapper
 public interface ProductImageMapper {
     List<ProductImage> findAllByProductSeq(Long productSeq);
+    List<ProductImage> findByProductSeq(Long productSeq);
     void saveProductImages(List<ProductImage> productImages);
     void updateProductImage(ProductImage productImage);
     void deleteProductImages(List<Integer> productImageSeqList);

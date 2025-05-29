@@ -1,19 +1,19 @@
 package com.jsconf.rocketlaptop.domain.product.dto.response;
 
-import com.jsconf.rocketlaptop.domain.product.dto.ProductSummaryDto;
+import com.jsconf.rocketlaptop.domain.product.dto.MainPageProductDto;
 import lombok.Builder;
 
 import java.util.List;
 
 @Builder
-public record GetSellerProductsResponseDto (
+public record GetProductsResponseDto(
         int totalCount,
-        List<ProductSummaryDto> sellerProducts
+        List<MainPageProductDto> products
 ) {
-    public static GetSellerProductsResponseDto from(List<ProductSummaryDto> sellerProducts, int totalCount) {
-        return GetSellerProductsResponseDto.builder()
+    public static GetProductsResponseDto from(List<MainPageProductDto> products, int totalCount) {
+        return GetProductsResponseDto.builder()
                 .totalCount(totalCount)
-                .sellerProducts(sellerProducts)
+                .products(products)
                 .build();
     }
 }

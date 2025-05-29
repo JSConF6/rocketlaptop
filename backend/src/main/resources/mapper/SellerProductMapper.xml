@@ -49,7 +49,7 @@
         AND is_deleted = 0
     </select>
 
-    <select id="countBySellerSeq" parameterType="com.jsconf.rocketlaptop.domain.product.dto.ProductSearchCondition" resultType="int">
+    <select id="countBySellerSeq" parameterType="ProductSearchCondition" resultType="int">
         SELECT COUNT(*)
         FROM product p
         INNER JOIN category c ON c.seq = p.category_seq
