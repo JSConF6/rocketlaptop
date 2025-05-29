@@ -1,4 +1,13 @@
 package com.jsconf.rocketlaptop.domain.review.dto;
 
-public record ProductReviewDetailDto() {
-}
+import java.time.LocalDateTime;
+
+public record ProductReviewDetailDto(
+        Long seq,
+        Long productSeq,
+        Long memberSeq,
+        String name,
+        String content,
+        Integer starRating,
+        LocalDateTime createdAt
+) { }

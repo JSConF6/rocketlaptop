@@ -13,5 +13,6 @@ public interface ProductMapper {
     List<MainPageProductDto> selectMainPageProducts();
     List<MainPageProductDto> selectProducts(ProductSearchCondition productSearchCondition);
     Optional<ProductDetailDto> selectProductDetail(Long productSeq);
+    boolean existsByProductSeq(Long productSeq);
     Integer countProducts(ProductSearchCondition productSearchCondition);
 }

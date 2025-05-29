@@ -42,6 +42,13 @@
         LIMIT #{pageSize} OFFSET #{offset}
     </select>
 
+    <select id="existsByProductSeq" resultType="boolean">
+        SELECT COUNT(*)
+        FROM product
+        WHERE seq = #{productSeq}
+        AND is_deleted = 0
+    </select>
+
     <select id="countProducts" parameterType="ProductSearchCondition" resultType="int">
         SELECT COUNT(*)
         FROM product p

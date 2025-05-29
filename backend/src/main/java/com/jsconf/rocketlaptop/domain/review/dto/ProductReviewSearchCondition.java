@@ -1,40 +1,24 @@
-package com.jsconf.rocketlaptop.domain.product.dto;
+package com.jsconf.rocketlaptop.domain.review.dto;
 
 import lombok.Builder;
 
 @Builder
-public record ProductSearchCondition (
-        String search,
+public record ProductReviewSearchCondition(
         Integer page,
         Integer pageSize,
         Integer offset,
-        Long sellerSeq,
-        String status,
-        Integer categorySeq
+        Long productSeq,
+        String sortBy
 ) {
-    public static ProductSearchCondition of(String search, Integer page, Integer pageSize, Long sellerSeq, String status, Integer categorySeq) {
+    public static ProductReviewSearchCondition of(Integer page, Integer pageSize, Long productSeq, String sortBy) {
         int safePage = Math.max(page, 1);
         int safePageSize = Math.max(pageSize, 1);
-        return ProductSearchCondition.builder()
-                .search(search)
+        return ProductReviewSearchCondition.builder()
                 .page(safePage)
                 .pageSize(safePageSize)
                 .offset((safePage - 1) * safePageSize)
-                .sellerSeq(sellerSeq)
-                .status(status)
-                .categorySeq(categorySeq)
-                .build();
-    }
-
-    public static ProductSearchCondition of(String search, Integer page, Integer pageSize, Integer categorySeq) {
-        int safePage = Math.max(page, 1);
-        int safePageSize = Math.max(pageSize, 1);
-        return ProductSearchCondition.builder()
-                .search(search)
-                .page(safePage)
-                .pageSize(safePageSize)
-                .offset((safePage - 1) * safePageSize)
-                .categorySeq(categorySeq)
+                .productSeq(productSeq)
+                .sortBy(sortBy)
                 .build();
     }
 }

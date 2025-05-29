@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class ProductReview {
+public class Review {
     private Long seq;
     private Long productSeq;
     private Long memberSeq;

@@ -19,7 +19,7 @@ public class ProductController {
             @RequestParam(required = false) String search,
             @RequestParam(required = false) Integer categorySeq,
             @RequestParam Integer page,
-            @RequestParam(defaultValue = "10") Integer pageSize
+            @RequestParam(defaultValue = "9") Integer pageSize
     ) {
         return ResponseUtil.success(SuccessCode.SUCCESS,
                 productService.getProducts(
