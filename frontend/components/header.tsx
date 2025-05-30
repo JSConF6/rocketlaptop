@@ -6,10 +6,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
-import { Search, User, ShoppingCart, Menu } from 'lucide-react';
+import { Search, User, Menu, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useCart } from '@/components/cart-provider';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,10 +31,8 @@ const Header = (): React.JSX.Element => {
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
   const pathname = usePathname();
-  const { cartItems } = useCart();
   const { data: session } = useSession();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('All Category');
   const [isPending, startTransition] = useTransition();
 
   const handleSearch = (e: React.FormEvent): void => {
@@ -43,15 +40,6 @@ const Header = (): React.JSX.Element => {
     if (searchQuery.trim()) {
       startTransition(() => {
         router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
-      });
-    }
-  };
-
-  const handleCategoryChange = (value: string): void => {
-    setSelectedCategory(value);
-    if (value !== 'All Category') {
-      startTransition(() => {
-        router.push(`/categories/${value.toLowerCase()}`);
       });
     }
   };
@@ -144,27 +132,40 @@ const Header = (): React.JSX.Element => {
           <div className="flex items-center gap-4">
             <div className="hidden md:flex items-center gap-4">
               {session ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="relative">
-                      <User className="h-5 w-5" />
-                      <span className="sr-only">User menu</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem disabled>
-                      {session.user.email}
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/my-page">마이페이지</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleLogout}>
-                      로그아웃
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    asChild
+                    className="relative"
+                  >
+                    <Link href="/cart">
+                      <ShoppingCart className="h-5 w-5" />
+                      <span className="sr-only">Shopping cart</span>
+                    </Link>
+                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="relative">
+                        <User className="h-5 w-5" />
+                        <span className="sr-only">User menu</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem disabled>
+                        {session.user.email}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link href="/my-page">마이페이지</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleLogout}>
+                        로그아웃
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
               ) : (
                 <Button variant="ghost" size="icon" asChild>
                   <Link href="/login">
@@ -173,18 +174,6 @@ const Header = (): React.JSX.Element => {
                   </Link>
                 </Button>
               )}
-
-              <Button variant="ghost" size="icon" asChild className="relative">
-                <Link href="/cart">
-                  <ShoppingCart className="h-5 w-5" />
-                  {cartItems.length > 0 && (
-                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-medium text-primary-foreground">
-                      {cartItems.length}
-                    </span>
-                  )}
-                  <span className="sr-only">Shopping cart</span>
-                </Link>
-              </Button>
             </div>
 
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>

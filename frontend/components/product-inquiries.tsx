@@ -242,58 +242,60 @@ export const ProductInquiries = ({
             </p>
           </div>
         ) : (
-          <Accordion type="multiple" className="space-y-4">
-            {inquiries.map(inquiry => (
-              <AccordionItem
-                key={inquiry.seq}
-                value={inquiry.seq.toString()}
-                className="border rounded-lg px-4"
-              >
-                <AccordionTrigger className="hover:no-underline">
-                  <div className="flex-1 text-left">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm font-medium">
-                        {inquiry.name}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(inquiry.createdAt).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <p className="text-sm font-normal">{inquiry.question}</p>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="pt-2 pb-4">
-                    {inquiry.answer ? (
-                      <div className="bg-muted p-4 rounded-md">
-                        <div className="flex items-center gap-2 mb-2">
-                          <div>
-                            <p className="text-xs text-muted-foreground">
-                              {new Date(
-                                inquiry.answerDate,
-                              ).toLocaleDateString()}
-                            </p>
-                          </div>
-                        </div>
-                        <p className="text-sm">{inquiry.answer}</p>
+          <>
+            <Accordion type="multiple" className="space-y-4">
+              {inquiries.map(inquiry => (
+                <AccordionItem
+                  key={inquiry.seq}
+                  value={inquiry.seq.toString()}
+                  className="border rounded-lg px-4"
+                >
+                  <AccordionTrigger className="hover:no-underline">
+                    <div className="flex-1 text-left">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-medium">
+                          {inquiry.name}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(inquiry.createdAt).toLocaleDateString()}
+                        </span>
                       </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground italic">
-                        답변을 기다리고 있습니다
-                      </p>
-                    )}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+                      <p className="text-sm font-normal">{inquiry.question}</p>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="pt-2 pb-4">
+                      {inquiry.answer ? (
+                        <div className="bg-muted p-4 rounded-md">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div>
+                              <p className="text-xs text-muted-foreground">
+                                {new Date(
+                                  inquiry.answerDate,
+                                ).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                          <p className="text-sm">{inquiry.answer}</p>
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground italic">
+                          답변을 기다리고 있습니다
+                        </p>
+                      )}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+            <PaginationControl
+              currentPage={currentPage}
+              totalCount={totalCount}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+            />
+          </>
         )}
-        <PaginationControl
-          currentPage={currentPage}
-          totalCount={totalCount}
-          pageSize={pageSize}
-          onPageChange={setCurrentPage}
-        />
       </div>
     </div>
   );

@@ -6,27 +6,48 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Trash2, ArrowRight, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useCart } from '@/components/cart-provider';
 import { useToast } from '@/components/ui/use-toast';
 import { Badge } from '@/components/ui/badge';
+import { CartItem } from '@/types/cart';
+import { useEffect, useState } from 'react';
+import { deleteCartItem, fetchCartItems } from '@/lib/api/cart';
+import { useSession } from 'next-auth/react';
 
-const CartClientPage = (): React.JSX.Element => {
-  const { cartItems, removeFromCart, updateQuantity, totalPrice } = useCart();
+type CartClientPageProps = {
+  cartItems: CartItem[];
+};
+
+const CartClientPage = (props: CartClientPageProps): React.JSX.Element => {
   const { toast } = useToast();
+  const { data: session } = useSession();
+  const [cartItems, setCartItems] = useState<CartItem[]>(props.cartItems);
+  const [totalPrice, setTotalPrice] = useState(0);
 
-  const handleQuantityChange = (seq: number, newQuantity: number): void => {
-    if (newQuantity > 0) {
-      updateQuantity(seq, newQuantity);
+  useEffect(() => {
+    const total = cartItems.reduce(
+      (sum, item) => sum + item.unitPrice * item.quantity,
+      0,
+    );
+    setTotalPrice(total);
+  }, [cartItems]);
+
+  const handleRemoveItem = async (seq: number, name: string): Promise<void> => {
+    if (session && session.accessToken) {
+      try {
+        await deleteCartItem(session?.accessToken, seq);
+        const data = await fetchCartItems(session?.accessToken);
+        setCartItems(data.result.cartItems);
+        toast({
+          title: '장바구니 상품 삭제',
+          description: `${name} 상품이 삭제 되었습니다.`,
+        });
+      } catch (err) {
+        toast({
+          title: '장바구니 상품 삭제 실패',
+          description: `장바구니 상품 삭제 실패`,
+        });
+      }
     }
-  };
-
-  const handleRemoveItem = (seq: number, name: string): void => {
-    removeFromCart(seq);
-
-    toast({
-      title: 'Item removed',
-      description: `${name} has been removed from your cart.`,
-    });
   };
 
   if (cartItems.length === 0) {
@@ -63,10 +84,10 @@ const CartClientPage = (): React.JSX.Element => {
                   <div className="flex-shrink-0">
                     <Image
                       src={
-                        `${process.env.NEXT_PUBLIC_API_URL}${item.image}` ||
+                        `${process.env.NEXT_PUBLIC_API_URL}${item.productImagePath}` ||
                         '/placeholder.svg'
                       }
-                      alt={item.name}
+                      alt={item.productName}
                       width={100}
                       height={100}
                       className="rounded-md object-cover"
@@ -76,45 +97,31 @@ const CartClientPage = (): React.JSX.Element => {
                   <div className="flex-1 space-y-2">
                     <div className="flex justify-between">
                       <h3 className="flex items-center font-medium">
-                        {item.name}
-                        <Badge className="ms-2">Samsung</Badge>
+                        {item.productName}
+                        <Badge className="ms-2">{item.categoryName}</Badge>
                       </h3>
                       <p className="font-medium">
-                        {(item.price * item.quantity).toLocaleString()}원
+                        {item.totalPrice.toLocaleString()}원
                       </p>
                     </div>
 
                     <p className="text-sm text-muted-foreground">
-                      {item.price.toLocaleString()}원
+                      {item.unitPrice.toLocaleString()}원
                     </p>
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <button
-                          className="h-8 w-8 rounded-md border flex items-center justify-center"
-                          onClick={() =>
-                            handleQuantityChange(item.seq, item.quantity - 1)
-                          }
-                          aria-label="Decrease quantity"
-                        >
-                          -
-                        </button>
-                        <span className="w-8 text-center">{item.quantity}</span>
-                        <button
-                          className="h-8 w-8 rounded-md border flex items-center justify-center"
-                          onClick={() =>
-                            handleQuantityChange(item.seq, item.quantity + 1)
-                          }
-                          aria-label="Increase quantity"
-                        >
-                          +
-                        </button>
+                        <span className="w-8 text-center">
+                          {item.quantity}개
+                        </span>
                       </div>
 
                       <button
                         className="text-muted-foreground hover:text-destructive"
-                        onClick={() => handleRemoveItem(item.seq, item.name)}
-                        aria-label={`Remove ${item.name} from cart`}
+                        onClick={async () =>
+                          handleRemoveItem(item.seq, item.productName)
+                        }
+                        aria-label={`Remove ${item.productName} from cart`}
                       >
                         <Trash2 className="h-4 w-4" />
                         <span className="sr-only">삭제</span>

@@ -3,8 +3,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, Loader2 } from 'lucide-react';
-import { useCart } from '@/components/cart-provider';
-import { toast } from '@/components/ui/use-toast';
 import {
   Select,
   SelectContent,
@@ -13,42 +11,56 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { FetchProductResponse } from '@/types/product';
-
-type Product = {
-  seq: number;
-  name: string;
-  price: number;
-  images: string[];
-};
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
+import { insertCartItem } from '@/lib/api/cart';
 
 const AddToCartButton = ({
   productDetail,
 }: {
   productDetail: FetchProductResponse;
 }): React.JSX.Element => {
-  const { addToCart } = useCart();
+  const router = useRouter();
+  const { toast } = useToast();
   const [quantity, setQuantity] = useState('1');
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const { data: session } = useSession();
 
   const handleAddToCart = async (): Promise<void> => {
-    setIsAddingToCart(true);
+    if (!session || !session.accessToken) {
+      toast({
+        title: '장바구니 담기 오류',
+        description: '로그인 후 장바구니에 담을 수 있습니다.',
+        variant: 'destructive',
+      });
+      setTimeout(() => {
+        router.push('/login');
+      }, 100);
+      return;
+    }
 
-    // Simulate a small delay to show loading state
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    addToCart({
-      seq: productDetail.seq,
-      name: productDetail.productName,
-      price: productDetail.price,
-      image: productDetail.productImages[0].productImagePath,
-    });
-
-    toast({
-      title: 'Added to cart',
-      description: `${productDetail.productName} has been added to your cart.`,
-    });
-
-    setIsAddingToCart(false);
+    try {
+      setIsAddingToCart(true);
+      await insertCartItem(
+        session.accessToken,
+        productDetail.seq,
+        Number(quantity),
+        productDetail.price,
+      );
+      toast({
+        title: '장바구니 담기',
+        description: `${productDetail.productName} 상품이 장바구니에 담겼습니다.`,
+      });
+    } catch (err) {
+      toast({
+        title: '장바구니 담기 실패',
+        description: `장바구니 담기 실패`,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsAddingToCart(false);
+    }
   };
 
   return (
