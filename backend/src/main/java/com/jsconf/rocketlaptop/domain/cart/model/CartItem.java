@@ -12,4 +12,9 @@ public class CartItem {
     private Integer quantity;
     private Integer unitPrice;
     private Integer totalPrice;
+
+    public void increaseQuantity(int quantity) {
+        this.quantity += quantity;
+        this.totalPrice = unitPrice * this.quantity;
+    }
 }

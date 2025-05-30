@@ -36,7 +36,10 @@ public enum ErrorCode {
     IMAGE_SAVE_FAIL("400300", "이미지 저장 실패 했습니다.", HttpStatus.BAD_REQUEST),
     PRODUCT_SAVE_FAIL("400301", "상품 등록 실패 했습니다.", HttpStatus.BAD_REQUEST),
     PRODUCT_NOT_FOUND("404302", "상품이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
-    PRODUCT_UPDATE_FAIL("400303", "상품 수정 실패 했습니다.", HttpStatus.BAD_REQUEST);
+    PRODUCT_UPDATE_FAIL("400303", "상품 수정 실패 했습니다.", HttpStatus.BAD_REQUEST),
+
+    ADD_CART_FAIL("400400", "장바구니 담기 실패.", HttpStatus.BAD_REQUEST),
+    CART_ITEM_NOT_FOUND("404400", "장바구니에 상품이 존재하지 않습니다.", HttpStatus.NOT_FOUND);
 
     private final String code;
     private final String message;

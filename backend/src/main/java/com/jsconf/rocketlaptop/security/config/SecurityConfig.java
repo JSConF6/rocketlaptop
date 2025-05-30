@@ -47,7 +47,7 @@ public class SecurityConfig {
                         .requestMatchers("/uploads/**", "/auth/**", "/oauth2/**").permitAll()
                         .requestMatchers("/api/categories/**", "/api/main/products/**", "/api/products/**").permitAll()
                         .requestMatchers("/api/reviews/products/{productSeq}", "/api/inquiries/products/{productSeq}").permitAll()
-                        .requestMatchers("/api/member/**", "/api/seller/**").hasRole(UserRole.USER.name())
+                        .requestMatchers("/api/member/**", "/api/seller/**", "/api/carts/**").hasRole(UserRole.USER.name())
                 )
 
                 .addFilterBefore(new JwtAuthorizationFilter(jwtTokenProvider, redisService), BasicAuthenticationFilter.class)

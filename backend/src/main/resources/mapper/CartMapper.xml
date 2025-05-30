@@ -3,8 +3,88 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.jsconf.rocketlaptop.domain.card.mapper.CartMapper">
+<mapper namespace="com.jsconf.rocketlaptop.domain.cart.mapper.CartMapper">
 
+    <select id="selectByMemberSeq" resultType="Cart">
+        SELECT *
+        FROM cart
+        WHERE member_seq = #{memberSeq}
+    </select>
 
+    <select id="selectCartItem" resultType="CartItem">
+        SELECT *
+        FROM cart_item
+        WHERE cart_seq = #{cartSeq}
+        AND product_seq = #{productSeq}
+    </select>
+
+    <select id="selectCartItems" resultType="CartItemDetail">
+        SELECT ci.seq, p.product_name, pi.product_image_path, cg.category_name, ci.quantity, ci.unit_price, ci.total_price
+        FROM cart c
+        INNER JOIN cart_item ci
+            ON c.seq = ci.cart_seq
+        INNER JOIN member m
+            ON c.member_seq = m.seq
+        INNER JOIN product p
+            ON ci.product_seq = p.seq
+        INNER JOIN category cg
+            ON p.category_Seq = cg.seq
+        INNER JOIN product_image pi
+            ON p.seq = pi.product_seq
+            AND pi.product_image_order  = 1
+        WHERE m.seq = #{memberSeq}
+        AND m.status = 'ACTIVE'
+        AND p.is_deleted = 0
+    </select>
+
+    <select id="existsByMemberSeq" resultType="boolean">
+        SELECT COUNT(*)
+        FROM cart
+        WHERE member_seq = #{memberSeq}
+    </select>
+
+    <select id="existsCartItem" resultType="boolean">
+        SELECT COUNT(*)
+        FROM cart_item
+        WHERE seq = #{seq}
+    </select>
+
+    <insert id="insertCart" parameterType="Cart" useGeneratedKeys="true" keyProperty="seq">
+        INSERT INTO cart (member_seq)
+        VALUES (#{memberSeq})
+    </insert>
+
+    <insert id="insertCartItem" parameterType="CartItem">
+        INSERT INTO cart_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="cartSeq != null">cart_seq,</if>
+            <if test="productSeq != null">product_seq,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="unitPrice != null">unit_price,</if>
+            <if test="totalPrice != null">total_price,</if>
+        </trim>
+        VALUES
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="cartSeq != null">#{cartSeq},</if>
+            <if test="productSeq != null">#{productSeq},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="unitPrice != null">#{unitPrice},</if>
+            <if test="totalPrice != null">#{totalPrice},</if>
+        </trim>
+    </insert>
+
+    <update id="updateCartItem" parameterType="CartItem">
+        UPDATE cart_item
+        SET
+        <if test="quantity != null">quantity = #{quantity},</if>
+        <if test="totalPrice != null">total_price = #{totalPrice}</if>
+        WHERE cart_seq = #{cartSeq}
+        AND product_seq = #{productSeq}
+    </update>
+
+    <update id="deleteCartItem">
+        DELETE FROM cart_item
+        WHERE seq = #{seq}
+    </update>
 
 </mapper>
